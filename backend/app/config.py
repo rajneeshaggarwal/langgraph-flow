@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 
 class Settings(BaseSettings):
-    app_name: str = "Visual AI Framework"
+    app_name: str = "LangGraph Flow"
     debug: bool = False
     
     # Database

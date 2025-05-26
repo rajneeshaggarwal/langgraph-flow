@@ -25,7 +25,7 @@ function WorkflowEditor() {
       <header className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-800">
-            Visual AI Framework
+            LangGraph Flow
           </h1>
           <WorkflowSelector
             currentWorkflowId={currentWorkflowId}
