@@ -348,28 +348,400 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
     </div>
   );
 
-  const renderOtherNodeTypes = () => {
-    // Existing configuration for other node types
-    if (node.data.type === 'tool') {
-      return (
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Tool Name
-            </label>
-            <input
-              type="text"
-              value={config.toolName || ''}
-              onChange={(e) => setConfig({ ...config, toolName: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter tool name..."
-            />
-          </div>
-        </div>
-      );
-    }
+  const renderInputConfig = () => (
+    <div className="space-y-6">
+      {/* Input Type Configuration */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Input Type
+        </label>
+        <select
+          value={config.inputType || 'text'}
+          onChange={(e) => setConfig({ ...config, inputType: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="text">Text</option>
+          <option value="number">Number</option>
+          <option value="email">Email</option>
+          <option value="url">URL</option>
+          <option value="password">Password</option>
+          <option value="textarea">Textarea</option>
+        </select>
+      </div>
 
-    return null;
+      {/* Placeholder Text */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Placeholder Text
+        </label>
+        <input
+          type="text"
+          value={config.placeholder || ''}
+          onChange={(e) => setConfig({ ...config, placeholder: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter placeholder text..."
+        />
+      </div>
+
+      {/* Default Value */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Default Value
+        </label>
+        <input
+          type="text"
+          value={config.defaultValue || ''}
+          onChange={(e) => setConfig({ ...config, defaultValue: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Enter default value..."
+        />
+      </div>
+
+      {/* Required Field */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="required"
+          checked={config.required || false}
+          onChange={(e) => setConfig({ ...config, required: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="required" className="ml-2 block text-sm text-gray-900">
+          Required field
+        </label>
+      </div>
+
+      {/* Validation */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Validation Pattern (Regex)
+        </label>
+        <input
+          type="text"
+          value={config.pattern || ''}
+          onChange={(e) => setConfig({ ...config, pattern: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="^[a-zA-Z0-9]+$"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Optional regex pattern for input validation
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderChatInputConfig = () => (
+    <div className="space-y-6">
+      {/* Chat Settings */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Chat Interface Style
+        </label>
+        <select
+          value={config.chatStyle || 'bubble'}
+          onChange={(e) => setConfig({ ...config, chatStyle: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="bubble">Bubble Style</option>
+          <option value="flat">Flat Style</option>
+          <option value="minimal">Minimal</option>
+        </select>
+      </div>
+
+      {/* Welcome Message */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Welcome Message
+        </label>
+        <textarea
+          value={config.welcomeMessage || 'Hello! How can I help you today?'}
+          onChange={(e) => setConfig({ ...config, welcomeMessage: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={3}
+          placeholder="Enter welcome message..."
+        />
+      </div>
+
+      {/* Input Placeholder */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Input Placeholder
+        </label>
+        <input
+          type="text"
+          value={config.inputPlaceholder || 'Type your message...'}
+          onChange={(e) => setConfig({ ...config, inputPlaceholder: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Enable File Upload */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="fileUpload"
+          checked={config.enableFileUpload || false}
+          onChange={(e) => setConfig({ ...config, enableFileUpload: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="fileUpload" className="ml-2 block text-sm text-gray-900">
+          Enable file upload
+        </label>
+      </div>
+
+      {/* Message History Limit */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Message History Limit
+        </label>
+        <input
+          type="number"
+          value={config.historyLimit || 50}
+          onChange={(e) => setConfig({ ...config, historyLimit: parseInt(e.target.value) })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          min="1"
+          max="1000"
+        />
+      </div>
+    </div>
+  );
+
+  const renderOutputConfig = () => (
+    <div className="space-y-6">
+      {/* Output Format */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Output Format
+        </label>
+        <select
+          value={config.outputFormat || 'text'}
+          onChange={(e) => setConfig({ ...config, outputFormat: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="text">Plain Text</option>
+          <option value="markdown">Markdown</option>
+          <option value="html">HTML</option>
+          <option value="json">JSON</option>
+        </select>
+      </div>
+
+      {/* Display Options */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Display Style
+        </label>
+        <div className="space-y-2">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="displayStyle"
+              value="inline"
+              checked={config.displayStyle === 'inline'}
+              onChange={(e) => setConfig({ ...config, displayStyle: e.target.value })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-900">Inline</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="displayStyle"
+              value="block"
+              checked={config.displayStyle === 'block'}
+              onChange={(e) => setConfig({ ...config, displayStyle: e.target.value })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-900">Block</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="displayStyle"
+              value="card"
+              checked={config.displayStyle === 'card'}
+              onChange={(e) => setConfig({ ...config, displayStyle: e.target.value })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+            />
+            <span className="ml-2 text-sm text-gray-900">Card</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Auto-refresh */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="autoRefresh"
+          checked={config.autoRefresh || false}
+          onChange={(e) => setConfig({ ...config, autoRefresh: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="autoRefresh" className="ml-2 block text-sm text-gray-900">
+          Auto-refresh output
+        </label>
+      </div>
+
+      {config.autoRefresh && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Refresh Interval (seconds)
+          </label>
+          <input
+            type="number"
+            value={config.refreshInterval || 30}
+            onChange={(e) => setConfig({ ...config, refreshInterval: parseInt(e.target.value) })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            min="1"
+            max="3600"
+          />
+        </div>
+      )}
+
+      {/* Max Length */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Maximum Display Length
+        </label>
+        <input
+          type="number"
+          value={config.maxLength || 1000}
+          onChange={(e) => setConfig({ ...config, maxLength: parseInt(e.target.value) })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          min="100"
+          max="10000"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Maximum characters to display (0 for unlimited)
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderChatOutputConfig = () => (
+    <div className="space-y-6">
+      {/* Chat Display Settings */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Chat Display Mode
+        </label>
+        <select
+          value={config.displayMode || 'conversation'}
+          onChange={(e) => setConfig({ ...config, displayMode: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="conversation">Full Conversation</option>
+          <option value="latest">Latest Message Only</option>
+          <option value="summary">Summary View</option>
+        </select>
+      </div>
+
+      {/* Message Bubble Style */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Message Bubble Style
+        </label>
+        <select
+          value={config.bubbleStyle || 'modern'}
+          onChange={(e) => setConfig({ ...config, bubbleStyle: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="modern">Modern</option>
+          <option value="classic">Classic</option>
+          <option value="minimal">Minimal</option>
+          <option value="bordered">Bordered</option>
+        </select>
+      </div>
+
+      {/* Show Timestamps */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="showTimestamps"
+          checked={config.showTimestamps || false}
+          onChange={(e) => setConfig({ ...config, showTimestamps: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="showTimestamps" className="ml-2 block text-sm text-gray-900">
+          Show timestamps
+        </label>
+      </div>
+
+      {/* Show Avatar */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="showAvatar"
+          checked={config.showAvatar || true}
+          onChange={(e) => setConfig({ ...config, showAvatar: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="showAvatar" className="ml-2 block text-sm text-gray-900">
+          Show user avatars
+        </label>
+      </div>
+
+      {/* Enable Copy */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="enableCopy"
+          checked={config.enableCopy || true}
+          onChange={(e) => setConfig({ ...config, enableCopy: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="enableCopy" className="ml-2 block text-sm text-gray-900">
+          Enable message copying
+        </label>
+      </div>
+
+      {/* Max Messages */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Maximum Messages to Display
+        </label>
+        <input
+          type="number"
+          value={config.maxMessages || 100}
+          onChange={(e) => setConfig({ ...config, maxMessages: parseInt(e.target.value) })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          min="1"
+          max="500"
+        />
+      </div>
+    </div>
+  );
+
+  const renderOtherNodeTypes = () => {
+    // Configuration for different node types
+    switch (node.data.type) {
+      case 'chatInput':
+        return renderChatInputConfig();
+      case 'textInput':
+        return renderInputConfig();
+      case 'chatOutput':
+        return renderChatOutputConfig();
+      case 'textOutput':
+        return renderOutputConfig();
+      case 'tool':
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Tool Name
+              </label>
+              <input
+                type="text"
+                value={config.toolName || ''}
+                onChange={(e) => setConfig({ ...config, toolName: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter tool name..."
+              />
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   return (

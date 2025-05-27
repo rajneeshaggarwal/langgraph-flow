@@ -14,9 +14,15 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 
 import { useWorkflowStore } from '../store/workflowStore';
-import { AgentNode } from './NodeTypes/AgentNode';
-import { ToolNode } from './NodeTypes/ToolNode';
-import { ConditionalNode } from './NodeTypes/ConditionalNode';
+import { 
+  AgentNode, 
+  ToolNode, 
+  ConditionalNode,
+  ChatInputNode,
+  TextInputNode,
+  ChatOutputNode,
+  TextOutputNode
+} from './NodeTypes';
 import { NodeConfigPanel } from './NodeConfigPanel';
 import { ExecutionMonitor } from './ExecutionMonitor';
 import { EdgeLabel } from './EdgeLabel';
@@ -28,6 +34,10 @@ const nodeTypes = {
   agent: AgentNode,
   tool: ToolNode,
   conditional: ConditionalNode,
+  chatInput: ChatInputNode,
+  textInput: TextInputNode,
+  chatOutput: ChatOutputNode,
+  textOutput: TextOutputNode,
 };
 
 const edgeTypes = {

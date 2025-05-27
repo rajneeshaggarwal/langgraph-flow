@@ -18,6 +18,22 @@ interface AgentComponentProps {
 // Component types definition
 const componentCategories = [
   {
+    name: 'Inputs',
+    icon: '📥',
+    components: [
+      { type: 'chatInput', label: 'Chat Input', icon: '💬', description: 'Interactive chat interface for user input' },
+      { type: 'textInput', label: 'Text Input', icon: '📝', description: 'Simple text input field' },
+    ]
+  },
+  {
+    name: 'Outputs',
+    icon: '📤',
+    components: [
+      { type: 'chatOutput', label: 'Chat Output', icon: '💭', description: 'Display chat responses and conversations' },
+      { type: 'textOutput', label: 'Text Output', icon: '📄', description: 'Display formatted text results' },
+    ]
+  },
+  {
     name: 'Agents',
     icon: '🤖',
     components: [
@@ -60,12 +76,59 @@ const componentCategories = [
 const AgentComponent = ({ agent, onDragStart, onClick }: AgentComponentProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
+  // Get colors based on component type
+  const getComponentColors = (type: string) => {
+    switch (type) {
+      case 'chatInput':
+        return 'border-blue-300 bg-blue-50 hover:border-blue-400';
+      case 'textInput':
+        return 'border-green-300 bg-green-50 hover:border-green-400';
+      case 'chatOutput':
+        return 'border-purple-300 bg-purple-50 hover:border-purple-400';
+      case 'textOutput':
+        return 'border-indigo-300 bg-indigo-50 hover:border-indigo-400';
+      case 'agent':
+        return 'border-blue-300 bg-blue-50 hover:border-blue-400';
+      case 'coordinator':
+        return 'border-purple-300 bg-purple-50 hover:border-purple-400';
+      case 'researcher':
+        return 'border-green-300 bg-green-50 hover:border-green-400';
+      case 'analyzer':
+        return 'border-orange-300 bg-orange-50 hover:border-orange-400';
+      default:
+        return 'border-gray-300 bg-gray-50 hover:border-gray-400';
+    }
+  };
+
+  const getIconBackgroundColor = (type: string) => {
+    switch (type) {
+      case 'chatInput':
+        return 'bg-blue-100';
+      case 'textInput':
+        return 'bg-green-100';
+      case 'chatOutput':
+        return 'bg-purple-100';
+      case 'textOutput':
+        return 'bg-indigo-100';
+      case 'agent':
+        return 'bg-blue-100';
+      case 'coordinator':
+        return 'bg-purple-100';
+      case 'researcher':
+        return 'bg-green-100';
+      case 'analyzer':
+        return 'bg-orange-100';
+      default:
+        return 'bg-gray-100';
+    }
+  };
+
   return (
     <div
       className={`
-        relative p-3 bg-white rounded-lg border-2 border-gray-200 
-        cursor-move transition-all duration-200 mb-2
-        ${isHovered ? 'border-blue-400 shadow-lg transform scale-105' : 'hover:border-gray-300 hover:shadow-md'}
+        relative p-3 rounded-lg border-2 cursor-move transition-all duration-200 mb-2
+        ${getComponentColors(agent.type)}
+        ${isHovered ? 'shadow-lg transform scale-105' : 'hover:shadow-md'}
       `}
       onDragStart={(e) => onDragStart(e, agent.type)}
       onMouseEnter={() => setIsHovered(true)}
@@ -75,13 +138,7 @@ const AgentComponent = ({ agent, onDragStart, onClick }: AgentComponentProps) =>
     >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
-          <div className={`
-            w-10 h-10 rounded-full flex items-center justify-center
-            ${agent.type === 'agent' ? 'bg-blue-100' : 
-              agent.type === 'coordinator' ? 'bg-purple-100' :
-              agent.type === 'researcher' ? 'bg-green-100' :
-              'bg-orange-100'}
-          `}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getIconBackgroundColor(agent.type)}`}>
             <span className="text-xl">{agent.icon}</span>
           </div>
         </div>
@@ -89,7 +146,7 @@ const AgentComponent = ({ agent, onDragStart, onClick }: AgentComponentProps) =>
           <h4 className="text-sm font-semibold text-gray-900 truncate">
             {agent.label}
           </h4>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
             {agent.description}
           </p>
         </div>
@@ -108,7 +165,7 @@ const AgentComponent = ({ agent, onDragStart, onClick }: AgentComponentProps) =>
 // Navigation Bar Component
 const LeftNavigationBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState(['Agents', 'Tools']);
+  const [expandedCategories, setExpandedCategories] = useState(['Inputs', 'Outputs', 'Agents']);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Mock addNode function - replace with your actual store function
@@ -167,6 +224,21 @@ const LeftNavigationBar = () => {
           </svg>
         </div>
 
+        {/* Category Filter */}
+        <div className="mt-3">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="all">All Categories</option>
+            {componentCategories.map(category => (
+              <option key={category.name} value={category.name}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Components List */}

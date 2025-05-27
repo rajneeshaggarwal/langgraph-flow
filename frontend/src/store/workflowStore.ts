@@ -65,14 +65,71 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
   },
   
   addNode: (type, position) => {
+    // Generate appropriate label based on node type
+    const getNodeLabel = (nodeType: string) => {
+      switch (nodeType) {
+        case 'chatInput':
+          return 'Chat Input';
+        case 'textInput':
+          return 'Text Input';
+        case 'chatOutput':
+          return 'Chat Output';
+        case 'textOutput':
+          return 'Text Output';
+        default:
+          return `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} Node`;
+      }
+    };
+
+    // Generate default configuration based on node type
+    const getDefaultConfig = (nodeType: string) => {
+      switch (nodeType) {
+        case 'chatInput':
+          return {
+            chatStyle: 'bubble',
+            welcomeMessage: 'Hello! How can I help you today?',
+            inputPlaceholder: 'Type your message...',
+            enableFileUpload: false,
+            historyLimit: 50,
+          };
+        case 'textInput':
+          return {
+            inputType: 'text',
+            placeholder: 'Enter text...',
+            defaultValue: '',
+            required: false,
+            pattern: '',
+          };
+        case 'chatOutput':
+          return {
+            displayMode: 'conversation',
+            bubbleStyle: 'modern',
+            showTimestamps: false,
+            showAvatar: true,
+            enableCopy: true,
+            maxMessages: 100,
+          };
+        case 'textOutput':
+          return {
+            outputFormat: 'text',
+            displayStyle: 'block',
+            autoRefresh: false,
+            refreshInterval: 30,
+            maxLength: 1000,
+          };
+        default:
+          return {};
+      }
+    };
+
     const newNode: Node = {
       id: uuidv4(),
       type,
       position,
       data: {
-        label: `${type.charAt(0).toUpperCase() + type.slice(1)} Node`,
+        label: getNodeLabel(type),
         type,
-        config: {},
+        config: getDefaultConfig(type),
       },
     };
     
