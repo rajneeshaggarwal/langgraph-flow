@@ -34,6 +34,13 @@ const componentCategories = [
     ]
   },
   {
+    name: 'Prompts',
+    icon: '📋',
+    components: [
+      { type: 'prompt', label: 'Prompt', icon: '📝', description: 'Create prompt templates with variables' },
+    ]
+  },
+  {
     name: 'Agents',
     icon: '🤖',
     components: [
@@ -165,7 +172,7 @@ const AgentComponent = ({ agent, onDragStart, onClick }: AgentComponentProps) =>
 // Navigation Bar Component
 const LeftNavigationBar = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState(['Inputs', 'Outputs', 'Agents']);
+  const [expandedCategories, setExpandedCategories] = useState(['Inputs', 'Outputs', 'Prompts', 'Agents']);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   // Mock addNode function - replace with your actual store function
@@ -222,22 +229,6 @@ const LeftNavigationBar = () => {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-        </div>
-
-        {/* Category Filter */}
-        <div className="mt-3">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-          >
-            <option value="all">All Categories</option>
-            {componentCategories.map(category => (
-              <option key={category.name} value={category.name}>
-                {category.name}
-              </option>
-            ))}
-          </select>
         </div>
       </div>
 

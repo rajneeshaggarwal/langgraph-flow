@@ -24,7 +24,7 @@ import {
   TextOutputNode
 } from './NodeTypes';
 import { NodeConfigPanel } from './NodeConfigPanel';
-import { ExecutionMonitor } from './ExecutionMonitor';
+import { OutputPanel } from './OutputPanel';
 import { EdgeLabel } from './EdgeLabel';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useKeyPress } from '../hooks/useKeyPress';
@@ -176,19 +176,12 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
             style: { stroke: '#b1b1b7' },
           }}
         >
-          <MiniMap
-            nodeStrokeColor={(node) => {
-              if (node.data?.highlighted) return '#ff0072';
-              if (node.selected) return '#1a90ff';
-              return '#b1b1b7';
-            }}
-            nodeColor={(node) => {
-              if (node.data?.highlighted) return '#ff0072';
-              return '#fff';
-            }}
-            nodeBorderRadius={2}
+          <Controls 
+            position="bottom-right"
+            showInteractive={true}
+            showZoom={true}
+            showFitView={true}
           />
-          <Controls />
           <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         </ReactFlow>
         
@@ -225,7 +218,7 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
         </div>
       </div>
       
-      <ExecutionMonitor />
+      <OutputPanel />
       
       {selectedNode && (
         <NodeConfigPanel

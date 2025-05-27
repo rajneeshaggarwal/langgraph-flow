@@ -5,3 +5,4 @@ export { ChatInputNode } from './ChatInputNode';
 export { TextInputNode } from './TextInputNode';
 export { ChatOutputNode } from './ChatOutputNode';
 export { TextOutputNode } from './TextOutputNode';
+export { PromptNode } from './PromptNode';

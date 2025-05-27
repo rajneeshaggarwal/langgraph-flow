@@ -57,6 +57,18 @@ const AVAILABLE_TOOLS = [
   { id: 'code_executor', name: 'Code Executor', icon: '💻', description: 'Execute code snippets' }
 ];
 
+const extractVariablesFromTemplate = (template: string): string[] => {
+  const regex = /\{\{(\w+)\}\}/g;
+  const variables = new Set<string>();
+  let match;
+  
+  while ((match = regex.exec(template)) !== null) {
+    variables.add(match[1]);
+  }
+  
+  return Array.from(variables);
+};
+
 export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose }) => {
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const [config, setConfig] = useState<any>({});
@@ -711,6 +723,168 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
     </div>
   );
 
+  const renderPromptConfig = () => (
+    <div className="space-y-6">
+      {/* Prompt Template */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Prompt Template
+        </label>
+        <textarea
+          value={config.promptTemplate || ''}
+          onChange={(e) => setConfig({ ...config, promptTemplate: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={6}
+          placeholder="Type your prompt here...&#10;&#10;Use {{variable}} syntax to add dynamic variables."
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Use double curly braces {`{{variable}}`} to insert dynamic variables
+        </p>
+      </div>
+  
+      {/* Variables */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Variables
+        </label>
+        <div className="space-y-2">
+          {(config.variables || []).map((variable: string, index: number) => (
+            <div key={index} className="flex items-center space-x-2">
+              <input
+                type="text"
+                value={variable}
+                onChange={(e) => {
+                  const newVariables = [...(config.variables || [])];
+                  newVariables[index] = e.target.value;
+                  setConfig({ ...config, variables: newVariables });
+                }}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Variable name"
+              />
+              <button
+                onClick={() => {
+                  const newVariables = (config.variables || []).filter((_: string, i: number) => i !== index);
+                  setConfig({ ...config, variables: newVariables });
+                }}
+                className="p-2 text-red-600 hover:bg-red-50 rounded"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          ))}
+          <button
+            onClick={() => {
+              setConfig({ 
+                ...config, 
+                variables: [...(config.variables || []), ''] 
+              });
+            }}
+            className="w-full px-3 py-2 border border-dashed border-gray-300 rounded-md text-gray-600 hover:border-gray-400 hover:text-gray-700"
+          >
+            + Add Variable
+          </button>
+        </div>
+      </div>
+  
+      {/* Model Selection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Model
+        </label>
+        <select
+          value={config.model || 'gpt-3.5-turbo'}
+          onChange={(e) => setConfig({ ...config, model: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="gpt-4">GPT-4</option>
+          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+          <option value="claude-3-opus">Claude 3 Opus</option>
+          <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+        </select>
+      </div>
+  
+      {/* Temperature */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Temperature: {config.temperature || 0.7}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.1"
+          value={config.temperature || 0.7}
+          onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
+          className="w-full"
+        />
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>Focused</span>
+          <span>Creative</span>
+        </div>
+      </div>
+  
+      {/* System Message */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          System Message (Optional)
+        </label>
+        <textarea
+          value={config.systemMessage || ''}
+          onChange={(e) => {
+            const newTemplate = e.target.value;
+            const extractedVars = extractVariablesFromTemplate(newTemplate);
+            
+            // Merge with existing variables
+            const existingVars = config.variables || [];
+            const allVars = [...new Set([...existingVars, ...extractedVars])];
+            
+            setConfig({ 
+              ...config, 
+              promptTemplate: newTemplate,
+              variables: allVars
+            });
+          }}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          rows={3}
+          placeholder="Set the behavior and context for the AI..."
+        />
+      </div>
+  
+      {/* Output Format */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Output Format
+        </label>
+        <select
+          value={config.outputFormat || 'text'}
+          onChange={(e) => setConfig({ ...config, outputFormat: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="text">Plain Text</option>
+          <option value="json">JSON</option>
+          <option value="markdown">Markdown</option>
+          <option value="structured">Structured Data</option>
+        </select>
+      </div>
+  
+      {/* Preview Mode */}
+      <div className="flex items-center">
+        <input
+          type="checkbox"
+          id="enablePreview"
+          checked={config.enablePreview || false}
+          onChange={(e) => setConfig({ ...config, enablePreview: e.target.checked })}
+          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+        />
+        <label htmlFor="enablePreview" className="ml-2 block text-sm text-gray-900">
+          Enable live preview
+        </label>
+      </div>
+    </div>
+  );  
+
   const renderOtherNodeTypes = () => {
     // Configuration for different node types
     switch (node.data.type) {
@@ -722,6 +896,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
         return renderChatOutputConfig();
       case 'textOutput':
         return renderOutputConfig();
+      case 'prompt':
+        return renderPromptConfig();
       case 'tool':
         return (
           <div className="space-y-4">

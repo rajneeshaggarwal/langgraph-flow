@@ -76,6 +76,8 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
           return 'Chat Output';
         case 'textOutput':
           return 'Text Output';
+        case 'prompt':
+          return 'Prompt';
         default:
           return `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} Node`;
       }
@@ -117,6 +119,16 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
             refreshInterval: 30,
             maxLength: 1000,
           };
+          case 'prompt':
+            return {
+              promptTemplate: '',
+              variables: [],
+              model: 'gpt-3.5-turbo',
+              temperature: 0.7,
+              systemMessage: '',
+              outputFormat: 'text',
+              enablePreview: false,
+            };
         default:
           return {};
       }

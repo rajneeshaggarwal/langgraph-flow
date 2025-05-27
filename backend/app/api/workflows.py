@@ -141,3 +141,21 @@ async def execute_workflow(
     )
     
     return db_execution
+
+@router.get("/{workflow_id}/executions", response_model=List[WorkflowExecutionResponse])
+async def get_workflow_executions(
+    workflow_id: UUID,
+    skip: int = 0,
+    limit: int = 100,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all executions for a workflow"""
+    result = await db.execute(
+        select(WorkflowExecution)
+        .where(WorkflowExecution.workflow_id == workflow_id)
+        .order_by(WorkflowExecution.started_at.desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    executions = result.scalars().all()
+    return executions
