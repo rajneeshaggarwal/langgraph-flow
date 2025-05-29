@@ -1,5 +1,5 @@
 // frontend/src/components/WorkflowCanvas.tsx
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useEffect } from 'react';
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -29,6 +29,7 @@ import { EdgeLabel } from './EdgeLabel';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useKeyPress } from '../hooks/useKeyPress';
 import { updateEdge } from 'reactflow';
+import { useWorkflow } from '../hooks/useWorkflow';
 
 const nodeTypes = {
   agent: AgentNode,
@@ -131,7 +132,13 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
     [reactFlowInstance, addNode]
   );
   
-  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+  const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {  
+    console.log('node clicked', node);
+    // Don't open config panel for TextInputNode
+    if (node.type === 'textInput') {
+      return;
+    }
+
     setSelectedNode(node);
   }, []);
   
@@ -142,9 +149,41 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
       const { edges: currentEdges, setEdges } = useWorkflowStore.getState();
       setEdges(updateEdge(oldEdge, newConnection, currentEdges));
     },[]);
+
+    const { loadWorkflow, workflow } = useWorkflow(workflowId);
+    const { setSelectedWorkflowId } = useWorkflowStore();
+    
+    // Load workflow data when workflowId changes
+    useEffect(() => {
+      if (workflowId && workflow) {
+        loadWorkflow(workflow);
+        setSelectedWorkflowId(workflowId);
+      }
+      return () => {
+        if (!workflowId) {
+          setSelectedWorkflowId(null);
+        }
+      };
+    }, [workflowId, workflow, loadWorkflow, setSelectedWorkflowId]); 
+    
+  // Listen for config button clicks
+  useEffect(() => {
+    const handleConfigClick = (event: CustomEvent) => {
+      const nodeId = event.detail.nodeId;
+      const node = nodes.find(n => n.id === nodeId);
+      if (node) {
+        setSelectedNode(node);
+      }
+    };
+
+    window.addEventListener('nodeConfigClick', handleConfigClick as EventListener);
+    return () => {
+      window.removeEventListener('nodeConfigClick', handleConfigClick as EventListener);
+    };
+  }, [nodes]);
   
   // Send updates via WebSocket when nodes or edges change
-  React.useEffect(() => {
+  useEffect(() => {
     if (workflowId) {
       sendUpdate({ nodes, edges });
     }

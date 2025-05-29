@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useWorkflowStore } from '../store/workflowStore';
 import { useWorkflow } from '../hooks/useWorkflow';
 import { ExecutionDialog } from './ExecutionDialog';
@@ -13,8 +13,9 @@ export const WorkflowControlBar: React.FC<WorkflowControlBarProps> = ({ workflow
   const [showPlaygroundDialog, setShowPlaygroundDialog] = useState(false);
   const [showPublishMenu, setShowPublishMenu] = useState(false);
   const [workflowName, setWorkflowName] = useState('Untitled Workflow');
+  const [hasNameChanged, setHasNameChanged] = useState(false);
   const { nodes } = useWorkflowStore();
-  const { saveCurrentWorkflow, isUpdating, workflow } = useWorkflow(workflowId);
+  const { saveWorkflow, isUpdating, workflow } = useWorkflow(workflowId);
 
   // Check if workflow has chat input and output nodes
   const hasChatNodes = useMemo(() => {
@@ -23,12 +24,25 @@ export const WorkflowControlBar: React.FC<WorkflowControlBarProps> = ({ workflow
     return hasChatInput && hasChatOutput;
   }, [nodes]);
 
+  useEffect(() => {
+    if (workflow?.name && !hasNameChanged) {
+      setWorkflowName(workflow.name);
+    }
+  }, [workflow, hasNameChanged]);
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWorkflowName(e.target.value);
+    setHasNameChanged(true);
+  };
+
   const handleSave = async () => {
     try {
-      await saveCurrentWorkflow();
+      await saveWorkflow(workflowName || workflow?.name || 'Untitled Workflow');
       console.log('Workflow saved successfully');
+      setHasNameChanged(false); // Reset the flag after successful save
     } catch (error) {
       console.error('Failed to save workflow:', error);
+      // You might want to show an error notification here
     }
   };
 
@@ -46,8 +60,8 @@ export const WorkflowControlBar: React.FC<WorkflowControlBarProps> = ({ workflow
         <div className="flex items-center space-x-4">
           <input
             type="text"
-            value={workflow?.name || workflowName}
-            onChange={(e) => setWorkflowName(e.target.value)}
+            value={workflowName}
+            onChange={handleNameChange}
             className="text-lg font-semibold bg-transparent border-b border-transparent hover:border-gray-300 focus:border-blue-500 focus:outline-none px-1"
           />
           {workflowId && (

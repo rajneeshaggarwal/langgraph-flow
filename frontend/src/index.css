@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add to your global CSS or create a CSS module */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1;
+}

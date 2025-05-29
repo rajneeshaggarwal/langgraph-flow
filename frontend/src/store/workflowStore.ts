@@ -30,6 +30,8 @@ interface WorkflowState {
   
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
+
+  setSelectedWorkflowId: (workflowId: string | null) => void;
   
   clearWorkflow: () => void;
 }
@@ -278,6 +280,8 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
   
   setNodes: (nodes) => set({ nodes }),
   setEdges: (edges) => set({ edges }),
+
+  setSelectedWorkflowId: (workflowId) => set({ selectedWorkflowId: workflowId }),
   
   clearWorkflow: () => set({ nodes: [], edges: [] }),
 }));

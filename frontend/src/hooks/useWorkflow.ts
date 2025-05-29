@@ -109,15 +109,13 @@ export const useWorkflow = (workflowId?: string) => {
   );
 
   // Save current workflow from store
-  const saveCurrentWorkflow = useCallback(async () => {
+  const saveWorkflow = useCallback(async (name?: string) => {
     const { nodes, edges } = useWorkflowStore.getState();
     
-    if (!selectedWorkflowId && !workflowId) {
+    if (!workflowId) {
       console.error('No workflow ID available for saving');
       return;
     }
-
-    const id = selectedWorkflowId || workflowId;
     
     try {
       // Convert React Flow types to our workflow types
@@ -125,8 +123,8 @@ export const useWorkflow = (workflowId?: string) => {
       const workflowEdges = edges.map(convertToWorkflowEdge);
       
       await updateWorkflowMutation.mutateAsync({
-        id: id!,
-        name: workflow?.name || 'Untitled Workflow',
+        id: workflowId,
+        name: name || workflow?.name || 'Untitled Workflow',
         nodes: workflowNodes,
         edges: workflowEdges,
       });
@@ -134,7 +132,7 @@ export const useWorkflow = (workflowId?: string) => {
       console.error('Failed to save workflow:', error);
       throw error;
     }
-  }, [selectedWorkflowId, workflowId, workflow, updateWorkflowMutation]);
+  }, [workflowId, workflow, updateWorkflowMutation]);
 
   // Create new workflow from current state
   const createNewWorkflow = useCallback(
@@ -215,7 +213,7 @@ export const useWorkflow = (workflowId?: string) => {
     
     // Helper functions
     loadWorkflow,
-    saveCurrentWorkflow,
+    saveWorkflow,
     
     // Refresh functions
     refetchWorkflows: () => queryClient.invalidateQueries({ queryKey: ['workflows'] }),
@@ -243,7 +241,7 @@ export const useWorkflowDetails = (workflowId: string) => {
     isLoadingWorkflow,
     workflowError,
     loadWorkflow,
-    saveCurrentWorkflow,
+    saveWorkflow,
     executeWorkflow,
     executions,
     isUpdating,
@@ -255,7 +253,7 @@ export const useWorkflowDetails = (workflowId: string) => {
     isLoading: isLoadingWorkflow,
     error: workflowError,
     loadWorkflow,
-    save: saveCurrentWorkflow,
+    save: saveWorkflow,
     execute: executeWorkflow,
     executions: executions || [],
     isSaving: isUpdating,

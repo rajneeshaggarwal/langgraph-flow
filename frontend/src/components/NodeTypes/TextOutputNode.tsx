@@ -4,8 +4,8 @@ import { Handle, Position, NodeProps } from 'reactflow';
 export const TextOutputNode = memo(({ data, selected }: NodeProps) => {
   return (
     <div
-      className={`px-4 py-3 shadow-md rounded-lg bg-white border-2 min-w-[200px] ${
-        selected ? 'border-indigo-500' : 'border-gray-200'
+      className={`group shadow-md rounded-lg bg-white border-2 min-w-[350px] ${
+        selected ? 'border-blue-500' : 'border-gray-200'
       }`}
     >
       <Handle
