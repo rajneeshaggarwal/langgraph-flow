@@ -11,7 +11,8 @@ export const TextInputNode = memo(({ data, selected, id }: NodeProps) => {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [titleValue, setTitleValue] = useState(data.label || 'Text Input');
   const [descriptionValue, setDescriptionValue] = useState(data.description || 'Get text inputs from the Playground.');
-  const [isOutputHidden, setIsOutputHidden] = useState(false);
+  const [isOutputHidden, setIsOutputHidden] = useState(false); // Controls hidden eye icon state
+  const [isOutputExpanded, setIsOutputExpanded] = useState(true); // Controls expand/collapse state
   const updateNodeData = useWorkflowStore((state) => state.updateNodeData);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +53,18 @@ export const TextInputNode = memo(({ data, selected, id }: NodeProps) => {
   const toggleOutputVisibility = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsOutputHidden(!isOutputHidden);
+    if (!isOutputHidden) {
+      // When hiding output (eye icon -> hidden eye icon), collapse the footer
+      setIsOutputExpanded(false);
+    } else {
+      // When showing output (hidden eye icon -> eye icon), expand the footer
+      setIsOutputExpanded(true);
+    }
+  };
+
+  const toggleOutputExpansion = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsOutputExpanded(!isOutputExpanded);
   };
 
   useEffect(() => {
@@ -323,14 +336,14 @@ export const TextInputNode = memo(({ data, selected, id }: NodeProps) => {
         {isOutputHidden && (
           <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
             <button
-              onClick={toggleOutputVisibility}
+              onClick={toggleOutputExpansion}
               className="group flex h-7 w-7 items-center justify-center rounded-full border bg-gray-100 hover:text-gray-900 hover:bg-gray-200 transition-colors relative"
               type="button"
-              title="Expand hidden outputs (1)"
+              title={isOutputExpanded ? "Collapse outputs" : "Expand hidden outputs (1)"}
             >
               {/* Tooltip */}
               <span className="absolute bottom-full mb-2 px-2 py-1 text-xs text-white bg-gray-900 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Expand hidden outputs (1)
+                {isOutputExpanded ? "Collapse outputs" : "Expand hidden outputs (1)"}
               </span>
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -342,7 +355,7 @@ export const TextInputNode = memo(({ data, selected, id }: NodeProps) => {
                 strokeWidth="1.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
-                className="w-4 h-4 text-gray-600 group-hover:text-gray-900"
+                className={`w-4 h-4 text-gray-600 group-hover:text-gray-900 transform transition-transform ${isOutputExpanded ? 'rotate-180' : ''}`}
               >
                 <path d="m7 20 5-5 5 5"></path>
                 <path d="m7 4 5 5 5-5"></path>
@@ -352,27 +365,38 @@ export const TextInputNode = memo(({ data, selected, id }: NodeProps) => {
         )}
 
         {/* Footer - Collapsible */}
-        {!isOutputHidden && (
+        {isOutputExpanded && (
           <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 rounded-b-lg">
             <div className="flex items-center justify-between">
               <button
                 onClick={toggleOutputVisibility}
                 className="p-1 hover:bg-gray-200 rounded transition-colors group relative"
-                title="Hide output"
+                title={isOutputHidden ? "Show output" : "Hide output"}
               >
                 {/* Tooltip */}
                 <span className="absolute left-0 bottom-full mb-1 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  Hide output
+                  {isOutputHidden ? "Show output" : "Hide output"}
                 </span>
-                {/* Hidden eye icon (always show hidden icon when footer is visible) */}
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                </svg>
+                {/* Eye icon - changes based on isOutputHidden state */}
+                {isOutputHidden ? (
+                  // Hidden eye icon
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  // Normal eye icon
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-gray-400" aria-hidden="true" style={{strokeWidth: '1.5'}}>
+                    <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                )}
               </button>
-              <span className="text-sm text-gray-600">Message</span>
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-              </svg>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Message</span>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+              </div>
             </div>
           </div>
         )}
