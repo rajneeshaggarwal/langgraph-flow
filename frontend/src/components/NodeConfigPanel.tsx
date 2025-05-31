@@ -89,9 +89,8 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
     }
   }, [node]);
 
-  if (!node) return null;
-
   const handleSave = () => {
+    if (!node) return;
     const updatedConfig = {
       ...config,
       provider: selectedProvider.id,
@@ -887,7 +886,7 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
 
   const renderOtherNodeTypes = () => {
     // Configuration for different node types
-    switch (node.data.type) {
+    switch (node?.data.type) {
       case 'chatInput':
         return renderChatInputConfig();
       case 'textInput':
@@ -921,54 +920,71 @@ export const NodeConfigPanel: React.FC<NodeConfigPanelProps> = ({ node, onClose 
   };
 
   return (
-    <div className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 overflow-y-auto">
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-xl font-bold text-gray-900">Configure {node.data.label}</h3>
-          <button
-            onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <>
+      {/* Backdrop - only visible when panel is open */}
+      {node && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-20 z-40 transition-opacity duration-300"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Panel - always rendered but slides in/out */}
+      <div className={`fixed right-0 top-16 bottom-0 w-96 bg-white shadow-xl z-50 overflow-y-auto transform transition-transform delay-700 duration-300 ease-in-out ${
+        node ? 'translate-x-0' : 'translate-x-full'
+      }`}>
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-xl font-bold text-gray-900">Configure {node?.data.label || ''}</h3>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4">
+          {node && (
+            <>
+              {/* Node Name */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Node Name
+                </label>
+                <input
+                  type="text"
+                  value={node.data.label}
+                  onChange={(e) => updateNodeData(node.id, { label: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Node-specific configuration */}
+              {node.data.type === 'agent' ? renderAgentConfig() : renderOtherNodeTypes()}
+
+              {/* Action Buttons */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex justify-end space-x-3 mt-8">
+                <button
+                  onClick={onClose}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
-
-      <div className="p-4">
-        {/* Node Name */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Node Name
-          </label>
-          <input
-            type="text"
-            value={node.data.label}
-            onChange={(e) => updateNodeData(node.id, { label: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        {/* Node-specific configuration */}
-        {node.data.type === 'agent' ? renderAgentConfig() : renderOtherNodeTypes()}
-
-        {/* Action Buttons */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-4 flex justify-end space-x-3 mt-8">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Save Changes
-          </button>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
