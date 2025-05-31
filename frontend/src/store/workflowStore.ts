@@ -85,6 +85,23 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
       }
     };
 
+    const getNodeDescription = (nodeType: string) => {
+      switch (nodeType) {
+        case 'chatInput':
+          return 'Interactive chat interface';
+        case 'textInput':
+          return 'Get text inputs from the Playground.';
+        case 'chatOutput':
+          return 'Display chat responses';
+        case 'textOutput':
+          return 'Display a text output in the Playground.';
+        case 'prompt':
+          return 'Create a prompt template with dynamic variables.';
+        default:
+          return `${nodeType.charAt(0).toUpperCase() + nodeType.slice(1)} component`;
+      }
+    };
+
     // Generate default configuration based on node type
     const getDefaultConfig = (nodeType: string) => {
       switch (nodeType) {
@@ -142,6 +159,7 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
       position,
       data: {
         label: getNodeLabel(type),
+        description: getNodeDescription(type),
         type,
         config: getDefaultConfig(type),
       },

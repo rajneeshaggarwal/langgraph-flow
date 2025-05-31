@@ -21,7 +21,8 @@ import {
   ChatInputNode,
   TextInputNode,
   ChatOutputNode,
-  TextOutputNode
+  TextOutputNode,
+  PromptNode
 } from './NodeTypes';
 import { NodeConfigPanel } from './NodeConfigPanel';
 import { OutputPanel } from './OutputPanel';
@@ -39,6 +40,7 @@ const nodeTypes = {
   textInput: TextInputNode,
   chatOutput: ChatOutputNode,
   textOutput: TextOutputNode,
+  prompt: PromptNode,
 };
 
 const edgeTypes = {
@@ -135,7 +137,7 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {  
     console.log('node clicked', node);
     // Don't open config panel for TextInputNode and TextOutputNode
-    if (node.type === 'textInput' || node.type === 'textOutput' || node.type === 'chatInput') {
+    if (node.type === 'textInput' || node.type === 'textOutput' || node.type === 'chatInput' || node.type === 'chatOutput') {
       return;
     }
 
