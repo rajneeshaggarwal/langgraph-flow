@@ -134,8 +134,8 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
   
   const handleNodeClick = useCallback((event: React.MouseEvent, node: Node) => {  
     console.log('node clicked', node);
-    // Don't open config panel for TextInputNode
-    if (node.type === 'textInput') {
+    // Don't open config panel for TextInputNode and TextOutputNode
+    if (node.type === 'textInput' || node.type === 'textOutput' || node.type === 'chatInput') {
       return;
     }
 
@@ -172,10 +172,13 @@ export const WorkflowCanvas: React.FC<WorkflowCanvasProps> = ({ workflowId }) =>
       const nodeId = event.detail.nodeId;
       const node = nodes.find(n => n.id === nodeId);
       if (node) {
-        setSelectedNode(node);
+        // Toggle: if clicking the same node, close the panel
+        setSelectedNode(prevSelectedNode => 
+          prevSelectedNode?.id === node.id ? null : node
+        );
       }
     };
-
+  
     window.addEventListener('nodeConfigClick', handleConfigClick as EventListener);
     return () => {
       window.removeEventListener('nodeConfigClick', handleConfigClick as EventListener);

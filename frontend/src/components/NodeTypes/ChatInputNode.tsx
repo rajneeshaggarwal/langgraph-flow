@@ -1,14 +1,35 @@
 import React, { memo } from 'react';
 import { Handle, Position, NodeProps } from 'reactflow';
+import { Tooltip } from 'react-tooltip';
 
-export const ChatInputNode = memo(({ data, selected }: NodeProps) => {
+export const ChatInputNode = memo(({ data, selected, id }: NodeProps) => {
+  const handleConfigClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const event = new CustomEvent('nodeConfigClick', { 
+      detail: { nodeId: id }
+    });
+    window.dispatchEvent(event);
+  };
+
   return (
     <div
-      className={`px-4 py-3 shadow-md rounded-lg bg-white border-2 min-w-[200px] ${
+      className={`px-4 py-3 shadow-md rounded-lg bg-white border-2 min-w-[200px] relative ${
         selected ? 'border-blue-500' : 'border-gray-200'
       }`}
     >
-      <div className="flex items-center space-x-3">
+      {/* Configure Button - Positioned in top right */}
+      <button 
+        onClick={handleConfigClick}
+        className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded"
+        title="Configure"
+      >
+        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+
+      <div className="flex items-center space-x-3 pr-8">
         <div className="rounded-full w-10 h-10 flex items-center justify-center bg-blue-100">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -41,6 +62,41 @@ export const ChatInputNode = memo(({ data, selected }: NodeProps) => {
         position={Position.Right}
         className="w-3 h-3 bg-blue-500"
         style={{ right: -6 }}
+        data-tooltip-id="chat-input-tooltip"
+        data-tooltip-content="Output type: Message"
+      />
+      
+      <Tooltip 
+        id="chat-input-tooltip"
+        place="right"
+        className="!bg-black !text-white !opacity-100 !p-0"
+        style={{ 
+          backgroundColor: 'black',
+          padding: '24px',
+          borderRadius: '8px',
+          minWidth: '320px'
+        }}
+        render={() => (
+          <div style={{ margin: '6px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '14px' }}>Output type:</span>
+              <span style={{ 
+                backgroundColor: '#3B82F6', 
+                color: 'white', 
+                padding: '6px 12px', 
+                borderRadius: '6px', 
+                fontSize: '14px', 
+                fontWeight: '500' 
+              }}>
+                Message
+              </span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <p style={{ fontSize: '14px', margin: 0 }}>Drag to connect compatible inputs</p>
+              <p style={{ fontSize: '14px', margin: 0 }}>Click to filter compatible inputs and components</p>
+            </div>
+          </div>
+        )}
       />
     </div>
   );
