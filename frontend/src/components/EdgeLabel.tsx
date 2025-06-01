@@ -31,21 +31,23 @@ export const EdgeLabel: React.FC<EdgeProps> = ({
         d={edgePath}
         markerEnd={markerEnd}
       />
-      <EdgeLabelRenderer>
-        <div
-          style={{
-            position: 'absolute',
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 12,
-            pointerEvents: 'all',
-          }}
-          className="nodrag nopan"
-        >
-          <div className="bg-white px-2 py-1 rounded border border-gray-300 text-xs">
-            {data?.label || 'condition'}
+      {data?.label && ( // Only render label if it exists and is not empty
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              fontSize: 12,
+              pointerEvents: 'all',
+            }}
+            className="nodrag nopan"
+          >
+            <div className="bg-white px-2 py-1 rounded border border-gray-300 text-xs">
+              {data.label}
+            </div>
           </div>
-        </div>
-      </EdgeLabelRenderer>
+        </EdgeLabelRenderer>
+      )}
     </>
   );
 };

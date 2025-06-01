@@ -58,7 +58,7 @@ export const useWorkflowStore = create<WorkflowState>()((set, get) => ({
       ...connection,
       id: uuidv4(),
       type: 'labeled',
-      data: { label: connection.sourceHandle || 'default' },
+      data: { label: connection.sourceHandle || '' }, // Changed from 'default' to empty string
     } as Edge;
     
     set({
