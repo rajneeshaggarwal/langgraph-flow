@@ -117,7 +117,7 @@ const WorkflowMonitor: React.FC = () => {
       sse.close();
     });
 
-    sse.addEventListener('error', (event) => {
+    sse.addEventListener('error', (event: MessageEvent) => {
       const errorData = JSON.parse(event.data);
       setError(errorData.error);
       sse.close();
