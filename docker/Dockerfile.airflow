@@ -1,20 +1,27 @@
 FROM apache/airflow:2.8.0-python3.11
 
 USER root
+
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    git \
+    python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
 USER airflow
 
 # Copy requirements file
-COPY requirements-airflow.txt .
+COPY requirements-airflow.txt /requirements-airflow.txt
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements-airflow.txt
+RUN pip install --no-cache-dir -r /requirements-airflow.txt
 
-# Copy custom plugins and DAGs
-COPY --chown=airflow:airflow backend/plugins /opt/airflow/plugins
-COPY --chown=airflow:airflow backend/dags /opt/airflow/dags
+# Copy DAGs and plugins
+COPY --chown=airflow:airflow ./airflow/dags /opt/airflow/dags
+COPY --chown=airflow:airflow ./airflow/plugins /opt/airflow/plugins
+
+# Set environment variables
+ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
+ENV AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
+ENV AIRFLOW__API__AUTH_BACKENDS='airflow.api.auth.backend.basic_auth'

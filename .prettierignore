@@ -1,0 +1,82 @@
+# Ignore artifacts
+build/
+dist/
+coverage/
+.next/
+out/
+
+# Ignore node_modules
+node_modules/
+**/node_modules/
+
+# Ignore Python files (use Black for Python)
+*.py
+
+# Ignore specific file types
+*.min.js
+*.min.css
+*.log
+*.lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore generated files
+*.generated.*
+*_generated.*
+
+# Ignore data files
+*.csv
+*.tsv
+*.json
+!package.json
+!tsconfig.json
+!.prettierrc.json
+
+# Ignore vendor files
+vendor/
+third-party/
+
+# Ignore build outputs
+*.bundle.js
+*.chunk.js
+
+# Ignore environment files
+.env*
+
+# Ignore Docker files
+Dockerfile*
+docker-compose*.yml
+
+# Ignore database files
+*.db
+*.sqlite
+*.sql
+
+# Ignore Airflow specific
+airflow/
+
+# Ignore backend (Python)
+backend/
+
+# Ignore static assets
+public/static/
+static/
+
+# Ignore temporary files
+tmp/
+temp/
+*.tmp
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore Git
+.git/
+.gitignore
+.gitattributes
