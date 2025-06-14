@@ -17,7 +17,7 @@ echo "🚀 Starting LangGraph Flow with Airflow Integration Setup..."
 echo ""
 
 # Check if running from correct directory
-if [ ! -f "package.json" ] || [ ! -d "backend" ]; then
+if [ ! -f "README.md" ] && [ ! -f "setup.py" ] && [ ! -f "pyproject.toml" ]; then
     echo "❌ Error: Please run this script from the root of the langgraph-flow repository"
     exit 1
 fi
@@ -109,7 +109,9 @@ if [ -d "frontend" ] && [ -f "frontend/package.json" ]; then
     cd ..
     echo "✅ Frontend dependencies installed"
 else
-    echo "⚠️  Frontend directory not found, skipping frontend setup"
+    echo "ℹ️  Frontend directory not found, creating it..."
+    mkdir -p frontend/src/components frontend/public
+    echo "✅ Frontend directory created - you'll need to add the React app later"
 fi
 echo ""
 
@@ -117,6 +119,15 @@ echo ""
 echo "🐳 Building and starting Docker services..."
 echo "This may take several minutes on first run..."
 echo ""
+
+# Check if docker-compose file exists
+if [ ! -f "docker/docker-compose.airflow.yml" ]; then
+    echo "⚠️  docker-compose.airflow.yml not found. Creating docker directory..."
+    mkdir -p docker
+    echo "❌ You need to add the Docker configuration files to the docker/ directory."
+    echo "   Please ensure all Airflow integration files are properly installed."
+    exit 1
+fi
 
 docker-compose -f docker/docker-compose.airflow.yml build
 docker-compose -f docker/docker-compose.airflow.yml up -d
