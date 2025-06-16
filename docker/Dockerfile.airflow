@@ -7,19 +7,35 @@ RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     python3-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 USER airflow
 
-# Copy requirements file
-COPY requirements-airflow.txt /requirements-airflow.txt
+# Use constraints file to avoid version conflicts
+ARG CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-2.8.0/constraints-3.11.txt"
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r /requirements-airflow.txt
+# Install Python dependencies with constraints
+RUN pip install --no-cache-dir --constraint "${CONSTRAINT_URL}" \
+    langgraph \
+    langchain \
+    langchain-community \
+    langchain-openai \
+    langfuse \
+    psycopg2-binary==2.9.9 \
+    redis==5.0.0 \
+    httpx \
+    aiohttp==3.9.0 \
+    pydantic==2.0.0 \
+    python-dotenv==1.0.0 \
+    tenacity==8.2.3 \
+    pillow==10.0.0 \
+    pandas==2.0.0 \
+    numpy==1.24.0
 
 # Copy DAGs and plugins
-COPY --chown=airflow:airflow ./airflow/dags /opt/airflow/dags
-COPY --chown=airflow:airflow ./airflow/plugins /opt/airflow/plugins
+COPY --chown=airflow:airflow ./airflow/dags* /opt/airflow/dags/
+COPY --chown=airflow:airflow ./airflow/plugins* /opt/airflow/plugins/
 
 # Set environment variables
 ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
