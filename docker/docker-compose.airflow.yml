@@ -295,15 +295,40 @@ services:
       retries: 5
     restart: unless-stopped
 
-  # LangFuse Service
+  # ClickHouse for LangFuse v3
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3-alpine
+    environment:
+      CLICKHOUSE_DB: langfuse
+      CLICKHOUSE_USER: langfuse
+      CLICKHOUSE_PASSWORD: langfuse
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    ports:
+      - "8123:8123"  # HTTP interface
+      - "9001:9000"  # Native interface
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # LangFuse Service (update the existing one)
   langfuse:
     image: ghcr.io/langfuse/langfuse:latest
     depends_on:
       langfuse-postgres:
         condition: service_healthy
+      clickhouse:
+        condition: service_healthy
     environment:
       # Database
       DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5432/langfuse
+      
+      # ClickHouse
+      CLICKHOUSE_URL: http://langfuse:langfuse@clickhouse:8123/langfuse
       
       # Authentication
       NEXTAUTH_URL: http://localhost:3001
@@ -330,7 +355,7 @@ services:
       LANGFUSE_INIT_USER_NAME: ${LANGFUSE_ADMIN_NAME:-Admin}
       LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_ADMIN_PASSWORD:-admin123}
     ports:
-      - "3001:3000"  # LangFuse UI
+      - "3001:3000"
     volumes:
       - langfuse-data:/app/data
     healthcheck:
@@ -338,11 +363,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 30s
+      start_period: 60s
     restart: unless-stopped
 
 volumes:
   postgres-db-volume:
   ollama-data:
+  clickhouse-data:
   langfuse-postgres-data:
   langfuse-data:
