@@ -37,7 +37,8 @@ class AirflowLangGraphIntegration:
     
     def create_visual_ai_agent(
         self,
-        model: str = "gpt-4",
+        model: Optional[str] = None,
+        provider: Optional[str] = None,  # Add provider parameter
         tools: Optional[List[Any]] = None,
         system_prompt: Optional[str] = None,
         airflow_context: Optional[Dict[str, Any]] = None
@@ -47,6 +48,7 @@ class AirflowLangGraphIntegration:
         
         Args:
             model: LLM model to use
+            provider: LLM provider (openai, ollama, auto)
             tools: List of tools for the agent
             system_prompt: System prompt for the agent
             airflow_context: Airflow execution context
@@ -76,9 +78,15 @@ class AirflowLangGraphIntegration:
             You help users analyze images, process data, and create comprehensive reports.
             Always provide detailed, actionable insights."""
         
-        # Create agent with Airflow-specific configuration
+        # Create LLM using factory
+        llm = LLMFactory.create_llm(
+            provider=provider,
+            model=model
+        )
+        
+        # Create agent with the LLM
         agent = create_react_agent(
-            model=model,
+            llm=llm,  # Use llm parameter instead of model
             tools=tools,
             prompt=system_prompt
         )
@@ -263,7 +271,8 @@ def store_workflow_state(
 
 def create_agent_for_task_type(
     task_type: str,
-    airflow_context: Optional[Dict[str, Any]] = None
+    airflow_context: Optional[Dict[str, Any]] = None,
+    provider: Optional[str] = None  # Add provider parameter
 ) -> Any:
     """
     Factory function to create appropriate agent based on task type
@@ -271,49 +280,35 @@ def create_agent_for_task_type(
     Args:
         task_type: Type of task (vision, text, synthesis, etc.)
         airflow_context: Optional Airflow context
+        provider: LLM provider to use
         
     Returns:
         Configured agent for the task type
     """
     integration = AirflowLangGraphIntegration()
     
+    # Get provider from environment if not specified
+    if provider is None:
+        provider = os.getenv("LLM_PROVIDER", "auto")
+    
     if task_type == 'vision':
         from langgraph_flow.agents.vision import VisionAgent
         from langgraph_flow.tools import ImageAnalysisTool, ObjectDetectionTool
         
         tools = [ImageAnalysisTool(), ObjectDetectionTool()]
+        
+        # For vision tasks, prefer OpenAI if using auto mode
+        if provider == "auto" and os.getenv("OPENAI_API_KEY"):
+            provider = "openai"
+            model = "gpt-4-vision-preview"
+        else:
+            model = None  # Use default for provider
+        
         return integration.create_visual_ai_agent(
-            model="gpt-4-vision-preview",
+            model=model,
+            provider=provider,
             tools=tools,
             system_prompt="You are specialized in analyzing visual content.",
-            airflow_context=airflow_context
-        )
-    
-    elif task_type == 'text':
-        from langgraph_flow.agents.text import TextExtractionAgent
-        from langgraph_flow.tools import TextExtractionTool, DocumentParsingTool
-        
-        tools = [TextExtractionTool(), DocumentParsingTool()]
-        return integration.create_visual_ai_agent(
-            model="gpt-4",
-            tools=tools,
-            system_prompt="You are specialized in extracting and analyzing text.",
-            airflow_context=airflow_context
-        )
-    
-    elif task_type == 'synthesis':
-        from langgraph_flow.agents.synthesis import SynthesisAgent
-        
-        return integration.create_visual_ai_agent(
-            model="gpt-4",
-            tools=[],  # Synthesis typically doesn't need tools
-            system_prompt="You are specialized in synthesizing information from multiple sources.",
-            airflow_context=airflow_context
-        )
-    
-    else:
-        # Default generic agent
-        return integration.create_visual_ai_agent(
             airflow_context=airflow_context
         )
 

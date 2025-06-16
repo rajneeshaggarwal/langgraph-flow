@@ -18,6 +18,8 @@ from backend.api.monitoring import router as monitoring_router
 # Import existing routers from langgraph_flow
 from langgraph_flow.api import router as langgraph_router
 
+from backend.app.core.llm_factory import LLMFactory
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -171,6 +173,30 @@ async def get_configuration():
             "visual_ai_workflow",
             "visual_ai_multi_agent_pipeline"
         ]
+    }
+
+@app.get("/llm-status", tags=["Health"])
+async def check_llm_status() -> Dict[str, Any]:
+    """
+    Check status of available LLM providers
+    """
+    available_models = LLMFactory.get_available_models()
+    current_provider = os.getenv("LLM_PROVIDER", "auto")
+    
+    return {
+        "current_provider": current_provider,
+        "available_providers": {
+            "ollama": {
+                "available": len(available_models.get("ollama", [])) > 0,
+                "models": available_models.get("ollama", []),
+                "base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            },
+            "openai": {
+                "available": bool(os.getenv("OPENAI_API_KEY")) and os.getenv("OPENAI_API_KEY") != "your_openai_api_key",
+                "models": available_models.get("openai", []),
+                "configured_model": os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
+            }
+        }
     }
 
 # Utility functions

@@ -4,11 +4,14 @@ langchain
 langchain-community
 langchain-openai
 
+# LLM Providers
+langchain-openai
+langchain-community
+ollama
+langchain-ollama
+
 # LangFuse for observability
 langfuse
-
-# OpenAI
-openai
 
 # Database
 psycopg2-binary==2.9.9

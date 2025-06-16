@@ -5,8 +5,8 @@ from enum import Enum
 import asyncio
 from langchain.agents import AgentExecutor
 from langchain.memory import ConversationBufferMemory
-from langchain_openai import ChatOpenAI
 from langchain.tools import Tool
+from .llm_factory import LLMFactory
 
 class AgentRole(Enum):
     COORDINATOR = "coordinator"
@@ -66,10 +66,14 @@ class LLMAgent(BaseAgent):
     
     def __init__(self, agent_id: str, role: AgentRole, config: Dict[str, Any]):
         super().__init__(agent_id, role, config)
-        self.llm = ChatOpenAI(
-            model=config.get("model", "gpt-3.5-turbo"),
+        
+        # Use LLM factory to create the model
+        self.llm = LLMFactory.create_llm(
+            provider=config.get("provider"),
+            model=config.get("model"),
             temperature=config.get("temperature", 0.7)
         )
+        
         self.tools = self._setup_tools()
         
     def _setup_tools(self) -> List[Tool]:

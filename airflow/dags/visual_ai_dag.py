@@ -7,6 +7,7 @@ from langgraph.prebuilt import create_react_agent
 import os
 import json
 from typing import Dict, Any
+from backend.app.core.llm_factory import LLMFactory
 
 # Initialize LangFuse handler
 langfuse_handler = CallbackHandler(
@@ -33,11 +34,17 @@ def execute_langgraph_agent(**context):
     # Get input from Airflow context
     input_data = context['dag_run'].conf.get('input_data', {})
     
-    # Initialize LangGraph agent
+    # Get LLM configuration from DAG config or environment
+    llm_config = context['dag_run'].conf.get('llm_config', {})
+    provider = llm_config.get('provider', os.getenv('LLM_PROVIDER', 'auto'))
+    model = llm_config.get('model')
+    
+    # Initialize LangGraph agent with flexible LLM
     from langgraph_flow.agents import create_visual_ai_agent
     
     agent = create_visual_ai_agent(
-        model="gpt-4",
+        provider=provider,
+        model=model,
         tools=get_visual_ai_tools(),
         prompt="You are a Visual AI assistant specialized in workflow orchestration"
     )
