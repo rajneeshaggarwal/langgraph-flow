@@ -278,7 +278,71 @@ services:
         limits:
           memory: 8G  # Adjust based on your models
     command: serve
+  
+  # LangFuse Database
+  langfuse-postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: langfuse
+      POSTGRES_PASSWORD: langfuse
+      POSTGRES_DB: langfuse
+    volumes:
+      - langfuse-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U langfuse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # LangFuse Service
+  langfuse:
+    image: ghcr.io/langfuse/langfuse:latest
+    depends_on:
+      langfuse-postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-postgres:5432/langfuse
+      
+      # Authentication
+      NEXTAUTH_URL: http://localhost:3001
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-your-secret-key-here-change-in-production}
+      
+      # Security
+      SALT: ${LANGFUSE_SALT:-your-salt-here-change-in-production}
+      ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+      
+      # Telemetry (optional)
+      TELEMETRY_ENABLED: false
+      
+      # Features
+      LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES: true
+      
+      # Initial setup
+      LANGFUSE_INIT_ORG_ID: default-org
+      LANGFUSE_INIT_ORG_NAME: "Default Organization"
+      LANGFUSE_INIT_PROJECT_ID: default-project
+      LANGFUSE_INIT_PROJECT_NAME: "LangGraph Flow"
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-pk-lf-default-public}
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-sk-lf-default-secret}
+      LANGFUSE_INIT_USER_EMAIL: ${LANGFUSE_ADMIN_EMAIL:-admin@localhost}
+      LANGFUSE_INIT_USER_NAME: ${LANGFUSE_ADMIN_NAME:-Admin}
+      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_ADMIN_PASSWORD:-admin123}
+    ports:
+      - "3001:3000"  # LangFuse UI
+    volumes:
+      - langfuse-data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/public/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
 volumes:
   postgres-db-volume:
   ollama-data:
+  langfuse-postgres-data:
+  langfuse-data:

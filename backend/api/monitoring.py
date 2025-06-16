@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import asyncpg
 import os
 from pydantic import BaseModel
+import httpx
 
 router = APIRouter(prefix="/monitoring", tags=["monitoring"])
 
@@ -146,6 +147,63 @@ async def get_agent_performance(
         
     finally:
         await conn.close()
+
+@router.get("/langfuse-status")
+async def get_langfuse_status():
+    """Check LangFuse connection status and get project info"""
+    
+    langfuse_host = os.getenv("LANGFUSE_HOST", "http://localhost:3001")
+    
+    try:
+        # Check health endpoint
+        async with httpx.AsyncClient() as client:
+            health_response = await client.get(
+                f"{langfuse_host}/api/public/health",
+                timeout=5.0
+            )
+            
+            if health_response.status_code == 200:
+                return {
+                    "status": "healthy",
+                    "host": langfuse_host,
+                    "is_local": "localhost" in langfuse_host or "127.0.0.1" in langfuse_host,
+                    "ui_url": langfuse_host,
+                    "configuration": {
+                        "public_key": os.getenv("LANGFUSE_PUBLIC_KEY", "").startswith("pk-lf-"),
+                        "secret_key_configured": bool(os.getenv("LANGFUSE_SECRET_KEY"))
+                    }
+                }
+            else:
+                return {
+                    "status": "unhealthy",
+                    "host": langfuse_host,
+                    "error": f"Health check returned {health_response.status_code}"
+                }
+                
+    except Exception as e:
+        return {
+            "status": "error",
+            "host": langfuse_host,
+            "error": str(e),
+            "message": "Cannot connect to LangFuse. Ensure it's running."
+        }
+
+@router.get("/langfuse-traces/{limit}")
+async def get_recent_traces(
+    limit: int = 10,
+    project_id: Optional[str] = None
+):
+    """Get recent traces from local LangFuse"""
+    
+    # This requires LangFuse API access
+    # For now, return instruction to access UI
+    langfuse_host = os.getenv("LANGFUSE_HOST", "http://localhost:3001")
+    
+    return {
+        "message": "Access traces through LangFuse UI",
+        "url": f"{langfuse_host}/project/{project_id or 'default-project'}/traces",
+        "note": "Direct API access requires additional configuration"
+    }
 
 @router.get("/error-distribution", response_model=List[ErrorMetrics])
 async def get_error_distribution(

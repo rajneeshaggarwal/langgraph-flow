@@ -209,3 +209,31 @@ ps:
 
 top:
 	@docker-compose -f docker/docker-compose.airflow.yml top
+
+# LangFuse specific commands
+langfuse-setup:
+	@echo "Setting up local LangFuse..."
+	@chmod +x scripts/setup_langfuse.sh
+	@./scripts/setup_langfuse.sh
+
+langfuse-start:
+	@echo "Starting LangFuse services..."
+	@docker-compose -f docker/docker-compose.airflow.yml up -d langfuse-postgres langfuse
+
+langfuse-stop:
+	@echo "Stopping LangFuse services..."
+	@docker-compose -f docker/docker-compose.airflow.yml stop langfuse langfuse-postgres
+
+langfuse-logs:
+	@docker-compose -f docker/docker-compose.airflow.yml logs -f langfuse
+
+langfuse-clean:
+	@echo "⚠️  WARNING: This will delete all LangFuse data!"
+	@echo "Press Ctrl+C to cancel, or Enter to continue..."
+	@read confirm
+	@docker-compose -f docker/docker-compose.airflow.yml down -v langfuse-postgres langfuse
+	@rm -rf langfuse/data
+
+langfuse-status:
+	@echo "Checking LangFuse status..."
+	@curl -s http://localhost:3001/api/public/health | jq '.' || echo "LangFuse is not running"

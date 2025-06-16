@@ -18,7 +18,7 @@ psycopg2-binary==2.9.9
 redis==5.0.0
 
 # HTTP client
-httpx==0.25.0
+httpx
 aiohttp==3.9.0
 
 # Data validation
