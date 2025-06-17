@@ -1,219 +1,45 @@
-# LangGraph Flow - Git Ignore File
-
-# ======================
-# Environment Files
-# ======================
+# Environment
 .env
 .env.local
-.env.production
 .env.*.local
-# Keep the example
-!.env.example
 
-# ======================
 # Python
-# ======================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Virtual Environments
 venv/
-ENV/
 env/
-.venv
+ENV/
 
-# Testing
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-cover/
-
-# Jupyter
-.ipynb_checkpoints
-*.ipynb
-
-# ======================
-# Node.js / React
-# ======================
-node_modules/
-/frontend/build
-/frontend/.pnp
-.pnp.js
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
-.npm
-.eslintcache
-.stylelintcache
-.yarn-integrity
-*.tsbuildinfo
-
-# ======================
 # Airflow
-# ======================
 airflow/logs/
 airflow/airflow.db
 airflow/airflow-webserver.pid
 airflow/standalone_admin_password.txt
-airflow/webserver_config.py
-airflow/.airflow_db_initialised
 
-# ======================
-# Docker
-# ======================
-# Volume data
-postgres-data/
-redis-data/
-langfuse-data/
-ollama-data/
-clickhouse-data/
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# ======================
-# IDEs and Editors
-# ======================
-# VSCode
+# IDE
 .vscode/
-*.code-workspace
-
-# IntelliJ IDEA
 .idea/
-*.iml
-*.iws
-*.ipr
-out/
-
-# Sublime Text
-*.sublime-project
-*.sublime-workspace
-
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-Session.vim
-Sessionx.vim
-.netrwhist
-*~
-tags
-[._]*.un~
-
-# ======================
-# OS Files
-# ======================
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-._*
-.Spotlight-V100
-.Trashes
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-
-# Linux
-.directory
-.Trash-*
-.nfs*
-
-# ======================
-# Application Specific
-# ======================
-# Uploads
-uploads/
-static/uploads/
-
-# Temporary files
-*.tmp
-*.temp
-*.log
-*.bak
 *.swp
 *.swo
+*~
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
+# OS
+.DS_Store
+Thumbs.db
 
-# ML Models (use Git LFS instead)
-*.h5
-*.pkl
-*.ckpt
-*.pth
-*.safetensors
-models/
+# Docker
+*.log
 
-# Credentials and secrets
-*.pem
-*.key
-*.crt
-*.pfx
-credentials/
-secrets/
-
-# Backup files
-backup/
-backups/
-*.backup
-
-# Cache
-.cache/
-__pycache__/
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# ======================
-# Project Specific
-# ======================
-# Keep directory structure
-!.gitkeep
-!*/
-!airflow/dags/.gitkeep
-!airflow/plugins/.gitkeep
-!backend/api/.gitkeep
-!frontend/src/components/.gitkeep
-
-frontend/node_modules/
+# Build
+build/
+dist/
+*.egg-info/

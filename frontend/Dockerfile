@@ -1,12 +1,19 @@
-FROM node:20-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
+# Copy application code
 COPY . .
 
-EXPOSE 5173
+# Build the application
+RUN npm run build
 
-CMD ["npm", "run", "dev", "--", "--host"]
+# Expose port
+EXPOSE 3000
+
+# Run the application
+CMD ["npm", "start"]
