@@ -1,0 +1,29 @@
+# Override file to increase resources
+version: '3.8'
+
+services:
+  airflow-init:
+    environment:
+      DOCKER_BUILDKIT: 1
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          
+  airflow-webserver:
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          
+  airflow-scheduler:
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          
+  airflow-worker:
+    deploy:
+      resources:
+        limits:
+          memory: 2G

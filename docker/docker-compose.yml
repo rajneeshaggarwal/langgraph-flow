@@ -312,24 +312,24 @@ services:
     restart: unless-stopped
 
   # Ollama Service (optional - for local LLM)
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama-data:/root/.ollama
-    environment:
-      - OLLAMA_KEEP_ALIVE=24h
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 8G
-    command: serve
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama-data:/root/.ollama
+  #   environment:
+  #     - OLLAMA_KEEP_ALIVE=24h
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 8G
+  #   command: serve
 
 volumes:
   postgres-data:
   langfuse-postgres-data:
   clickhouse-data:
   langfuse-data:
-  ollama-data:
+  # ollama-data:

@@ -467,7 +467,7 @@ main() {
             clean_all
             ;;
         setup-ollama)
-            setup_ollama
+            # setup_ollama
             ;;
         info)
             show_access_info

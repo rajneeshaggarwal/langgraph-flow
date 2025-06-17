@@ -1,5 +1,6 @@
 FROM apache/airflow:2.8.0-python3.11
 
+# Switch to root to install system packages
 USER root
 
 # Install system dependencies
@@ -8,36 +9,55 @@ RUN apt-get update && apt-get install -y \
     g++ \
     python3-dev \
     git \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Switch to airflow user for pip installations
 USER airflow
 
-# Use constraints file to avoid version conflicts
-ARG CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-2.8.0/constraints-3.11.txt"
+# Set pip configuration
+ENV PIP_NO_CACHE_DIR=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install Python dependencies with constraints
-RUN pip install --no-cache-dir --constraint "${CONSTRAINT_URL}" \
-    langgraph \
-    langchain \
-    langchain-community \
-    langchain-openai \
-    langfuse \
+# Install Python packages as airflow user
+RUN pip install --no-cache-dir \
     psycopg2-binary==2.9.9 \
     redis==5.0.0 \
-    httpx \
-    aiohttp==3.9.0 \
-    pydantic==2.0.0 \
     python-dotenv==1.0.0 \
-    tenacity==8.2.3 \
-    pillow==10.0.0 \
-    pandas==2.0.0 \
-    numpy==1.24.0
+    pillow==10.0.0
+
+RUN pip install --no-cache-dir \
+    langchain==0.1.0 \
+    langsmith==0.0.83
+
+# Copy requirements and install additional packages
+COPY --chown=airflow:airflow requirements-runtime.txt /opt/airflow/
+RUN pip install --no-cache-dir -r /opt/airflow/requirements-runtime.txt
 
 # Copy DAGs and plugins
-COPY --chown=airflow:airflow ./airflow/dags* /opt/airflow/dags/
-COPY --chown=airflow:airflow ./airflow/plugins* /opt/airflow/plugins/
+COPY --chown=airflow:airflow ./airflow/dags /opt/airflow/dags/
+COPY --chown=airflow:airflow ./airflow/plugins /opt/airflow/plugins/
 
 # Set environment variables
 ENV AIRFLOW__CORE__LOAD_EXAMPLES=False
 ENV AIRFLOW__WEBSERVER__EXPOSE_CONFIG=True
 ENV AIRFLOW__API__AUTH_BACKENDS='airflow.api.auth.backend.basic_auth'
+
+# Switch to root to create entrypoint script
+USER root
+
+# Create the entrypoint script
+RUN echo '#!/bin/bash' > /entrypoint.sh && \
+    echo 'if [ ! -f /opt/airflow/.langgraph_installed ]; then' >> /entrypoint.sh && \
+    echo '    echo "Installing additional packages..."' >> /entrypoint.sh && \
+    echo '    pip install --no-cache-dir langgraph langfuse langchain-openai langchain-community' >> /entrypoint.sh && \
+    echo '    touch /opt/airflow/.langgraph_installed' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'exec "$@"' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+# Switch back to airflow user
+USER airflow
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
